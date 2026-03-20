@@ -37,6 +37,11 @@ h1 {
   transform: translateY(-7px);
 }
 
+/* Fix vertical coordinates offset */
+:deep(.ranks) {
+  transform: translateY(-7px);
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .chessboard-container {
