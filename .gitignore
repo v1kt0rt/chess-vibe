@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Stockfish - generated at build time
+public/stockfish.js
+public/stockfish.wasm.js
+public/stockfish.wasm
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

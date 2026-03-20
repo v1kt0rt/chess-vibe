@@ -1,20 +1,77 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { TheChessboard } from 'vue3-chessboard'
 import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
+import { initStockfish, makeEngineMove } from '../utils/stockfish'
 
 const boardConfig = {
   coordinates: true,
+};
+
+let boardAPI = null;
+const isThinking = ref(false);
+
+onMounted(async () => {
+  await initStockfish();
+});
+
+const onBoardCreated = (api) => {
+  boardAPI = api;
+};
+
+const onMove = (moveEvent) => {
+  // A move was made on the board, we could trigger the AI automatically if needed
+  console.log('Move made:', moveEvent);
+};
+
+const makeMove = async () => {
+  if (isThinking.value || !boardAPI) return;
+  
+  isThinking.value = true;
+  
+  const fen = boardAPI.getFen();
+  const move = await makeEngineMove(fen);
+  
+  if (move) {
+    // Convert move to object format (e.g., e2e4 -> {from: 'e2', to: 'e4'})
+    const from = move.substring(0, 2);
+    const to = move.substring(2, 4);
+    const promotion = move.length > 4 ? move[4] : undefined;
+    
+    try {
+      const moveData = {
+        from,
+        to,
+      };
+      
+      if (promotion) {
+        moveData.promotion = promotion;
+      }
+      
+      boardAPI.move(moveData);
+    } catch (error) {
+      console.error('Invalid move:', error);
+    }
+  }
+  
+  isThinking.value = false;
 };
 </script>
 
 <template>
   <div class="chessboard-container">
     <h1>Chess Vibe</h1>
-    <TheChessboard :board-config="boardConfig" />
+    <TheChessboard 
+      :board-config="boardConfig" 
+      @board-created="onBoardCreated"
+      @move="onMove"
+    />
     <div class="controls">
-      <button class="btn">
+      <button class="btn" @click="makeMove" :disabled="isThinking">
         <i class="fas fa-robot"></i>
+        <span v-if="isThinking" class="btn-text">Thinking...</span>
+        <span v-else class="btn-text">Bot Move</span>
       </button>
     </div>
   </div>
@@ -110,19 +167,28 @@ h1 {
   border: 2px solid rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   justify-content: center;
 }
 
-.btn-icon {
-  width: 1.5rem;
-  min-width: 3 rgba(255, 255, 255, 0.3);
+.btn-text {
+  margin-left: 0.5rem;
+}
+
+.btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.6);
   transform: translateY(-2px);
 }
 
-.btn:active {
+.btn:active:not(:disabled) {
   transform: translateY(0);
   background: rgba(255, 255, 255, 0.25);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {
