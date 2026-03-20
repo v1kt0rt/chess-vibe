@@ -50,7 +50,7 @@ src/
 ├── main.js           # App entry point
 ├── App.vue           # Root Vue component
 └── components/
-    └── Main.vue      # Chessboard component (replaces HelloWorld)
+    └── Main.vue      # Chessboard component
 
 index.html           # HTML template
 vite.config.js       # Vite configuration
@@ -61,3 +61,4 @@ package.json         # Dependencies and scripts
 
 - [Vue 3 Documentation](https://vuejs.org/)
 - [Vite Documentation](https://vitejs.dev/)
+- [vue3-chessboard](https://github.com/qwerty084/vue3-chessboard)
