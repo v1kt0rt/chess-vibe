@@ -1,12 +1,16 @@
 <script setup>
 import { TheChessboard } from 'vue3-chessboard'
 import 'vue3-chessboard/style.css'
+
+const boardConfig = {
+  coordinates: true,
+};
 </script>
 
 <template>
   <div class="chessboard-container">
     <h1>Chess Vibe</h1>
-    <TheChessboard />
+    <TheChessboard :board-config="boardConfig" />
   </div>
 </template>
 
@@ -26,6 +30,11 @@ h1 {
   margin-bottom: 2rem;
   font-size: 3rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Fix horizontal coordinates offset */
+:deep(.files) {
+  transform: translateY(-7px);
 }
 
 /* Mobile responsiveness */
