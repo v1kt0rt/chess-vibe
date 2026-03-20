@@ -1,6 +1,10 @@
-# Hello World - Vue 3 + Vite
+# Vue 3 + Vite Chessboard Demo
 
-A simple Hello World web application built with Vue 3 and Vite.
+A Vue 3 + Vite project that renders an interactive chessboard using `vue3-chessboard`.
+
+Current behavior:
+- Main page displays a centered chessboard with a `Chess Vibe` title.
+- Board is interactive and can receive moves in the browser.
 
 ## Project Setup
 
@@ -46,7 +50,7 @@ src/
 ├── main.js           # App entry point
 ├── App.vue           # Root Vue component
 └── components/
-    └── HelloWorld.vue # Hello World component
+    └── Main.vue      # Chessboard component (replaces HelloWorld)
 
 index.html           # HTML template
 vite.config.js       # Vite configuration
