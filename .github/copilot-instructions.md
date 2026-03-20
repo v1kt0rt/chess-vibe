@@ -10,3 +10,4 @@ description: "General guidelines for the chess-vibe project"
 - The user interface should work on narrow screens, such as mobile devices, without horizontal scrolling.
 - The user interface should be touch-friendly.
 - The chessboard should be the central focus of the interface, with controls and information displayed around it in a clear and organized manner.
+- Controls should be placed bellow the chessboard for easy access, and should be clearly labeled with intuitive 'fontawesome' icons.
