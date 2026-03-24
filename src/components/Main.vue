@@ -57,6 +57,11 @@ const makeMove = async () => {
   
   isThinking.value = false;
 };
+
+const flipBoard = () => {
+  if (!boardAPI) return;
+  boardAPI.toggleOrientation();
+};
 </script>
 
 <template>
@@ -72,6 +77,10 @@ const makeMove = async () => {
         <i class="fas fa-robot"></i>
         <span v-if="isThinking" class="btn-text">Thinking...</span>
         <span v-else class="btn-text">Bot Move</span>
+      </button>
+      <button class="btn" @click="flipBoard" aria-label="Flip board">
+        <i class="fas fa-repeat"></i>
+        <span class="btn-text">Flip</span>
       </button>
     </div>
   </div>
