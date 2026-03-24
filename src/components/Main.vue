@@ -11,6 +11,7 @@ const boardConfig = {
 
 let boardAPI = null;
 const isThinking = ref(false);
+const evaluation = ref(null);
 
 onMounted(async () => {
   await initStockfish();
@@ -29,15 +30,21 @@ const makeMove = async () => {
   if (isThinking.value || !boardAPI) return;
   
   isThinking.value = true;
+  evaluation.value = null;
   
   const fen = boardAPI.getFen();
-  const move = await makeEngineMove(fen);
+  const result = await makeEngineMove(fen);
   
-  if (move) {
+  if (result && result.move) {
+    // Store evaluation if available
+    if (result.evaluation) {
+      evaluation.value = result.evaluation.display;
+    }
+    
     // Convert move to object format (e.g., e2e4 -> {from: 'e2', to: 'e4'})
-    const from = move.substring(0, 2);
-    const to = move.substring(2, 4);
-    const promotion = move.length > 4 ? move[4] : undefined;
+    const from = result.move.substring(0, 2);
+    const to = result.move.substring(2, 4);
+    const promotion = result.move.length > 4 ? result.move[4] : undefined;
     
     try {
       const moveData = {
@@ -72,6 +79,9 @@ const undoMove = () => {
 <template>
   <div class="chessboard-container">
     <h1>Chess Vibe</h1>
+    <div class="evaluation">
+      Evaluation: {{ evaluation }}
+    </div>
     <TheChessboard 
       :board-config="boardConfig" 
       @board-created="onBoardCreated"
@@ -111,6 +121,16 @@ h1 {
   margin-bottom: 2rem;
   font-size: 3rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.evaluation {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  min-height: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 /* Fix horizontal coordinates offset */

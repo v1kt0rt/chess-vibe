@@ -1,6 +1,7 @@
 let engine = null;
 let engineReady = false;
 let bestMoveResolver = null;
+let lastEvaluation = null;
 
 function detectWasm() {
   try {
@@ -29,10 +30,34 @@ export function initStockfish() {
           resolve();
         }
         
+        // Parse evaluation from info lines
+        if (line.includes && line.includes('info') && line.includes('score')) {
+          const scoreMatch = line.match(/score (\w+) (-?\d+)/);
+          if (scoreMatch) {
+            const scoreType = scoreMatch[1]; // 'cp' for centipawns or 'mate'
+            const scoreValue = parseInt(scoreMatch[2], 10);
+            
+            if (scoreType === 'cp') {
+              lastEvaluation = {
+                type: 'cp',
+                value: scoreValue,
+                display: (scoreValue / 100).toFixed(2)
+              };
+            } else if (scoreType === 'mate') {
+              lastEvaluation = {
+                type: 'mate',
+                value: scoreValue,
+                display: `M${scoreValue}`
+              };
+            }
+          }
+        }
+        
         if (line.includes && line.includes('bestmove') && bestMoveResolver) {
           const parts = line.split(' ');
           const move = parts[1];
-          bestMoveResolver(move);
+          bestMoveResolver({ move, evaluation: lastEvaluation });
+          lastEvaluation = null;
           bestMoveResolver = null;
         }
       });
@@ -61,6 +86,6 @@ export function getBestMove(fen, depth = 15) {
 }
 
 export async function makeEngineMove(fen) {
-  const move = await getBestMove(fen);
-  return move;
+  const result = await getBestMove(fen);
+  return result;
 }
