@@ -62,6 +62,11 @@ const flipBoard = () => {
   if (!boardAPI) return;
   boardAPI.toggleOrientation();
 };
+
+const undoMove = () => {
+  if (!boardAPI) return;
+  boardAPI.undoLastMove();
+};
 </script>
 
 <template>
@@ -77,6 +82,10 @@ const flipBoard = () => {
         <i class="fas fa-robot"></i>
         <span v-if="isThinking" class="btn-text">Thinking...</span>
         <span v-else class="btn-text">Bot Move</span>
+      </button>
+      <button class="btn" @click="undoMove" aria-label="Undo last move">
+        <i class="fas fa-undo"></i>
+        <span class="btn-text">Undo</span>
       </button>
       <button class="btn" @click="flipBoard" aria-label="Flip board">
         <i class="fas fa-repeat"></i>
