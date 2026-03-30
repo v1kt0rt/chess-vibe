@@ -2,6 +2,8 @@ let engine = null;
 let engineReady = false;
 let bestMoveResolver = null;
 let lastEvaluation = null;
+let skillLevel = 20; // 0-20, default 20 (strongest)
+let searchDepth = 15; // default search depth
 
 function detectWasm() {
   try {
@@ -70,7 +72,7 @@ export function initStockfish() {
   });
 }
 
-export function getBestMove(fen, depth = 15) {
+export function getBestMove(fen, depth = null) {
   return new Promise((resolve) => {
     if (!engine || !engineReady) {
       console.error('Engine not ready');
@@ -79,13 +81,42 @@ export function getBestMove(fen, depth = 15) {
     }
 
     bestMoveResolver = resolve;
+    const searchDepthValue = depth !== null ? depth : searchDepth;
     
     engine.postMessage('position fen ' + fen);
-    engine.postMessage('go depth ' + depth);
+    engine.postMessage('go depth ' + searchDepthValue);
   });
 }
 
 export async function makeEngineMove(fen) {
   const result = await getBestMove(fen);
   return result;
+}
+
+export function setSkillLevel(level) {
+  // Set skill level: 0-20 (0=weakest, 20=strongest)
+  if (!engine) {
+    console.error('Engine not initialized');
+    return;
+  }
+  const validLevel = Math.max(0, Math.min(20, level));
+  skillLevel = validLevel;
+  engine.postMessage(`setoption name Skill Level value ${validLevel}`);
+}
+
+export function setSearchDepth(depth) {
+  // Set default search depth for future moves
+  if (depth <= 0) {
+    console.error('Search depth must be greater than 0');
+    return;
+  }
+  searchDepth = depth;
+}
+
+export function getSkillLevel() {
+  return skillLevel;
+}
+
+export function getSearchDepth() {
+  return searchDepth;
 }
