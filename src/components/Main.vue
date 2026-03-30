@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { TheChessboard } from 'vue3-chessboard'
 import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
-import { initStockfish, makeEngineMove } from '../utils/stockfish'
+import { initStockfish, makeEngineMove, getBestMove } from '../utils/stockfish'
 import EngineSettings from './EngineSettings.vue'
 
 const boardConfig = {
@@ -11,6 +11,7 @@ const boardConfig = {
 };
 
 let boardAPI = null;
+let isEngineMove = false;
 const isThinking = ref(false);
 const evaluation = ref(null);
 const showSettings = ref(false);
@@ -23,9 +24,15 @@ const onBoardCreated = (api) => {
   boardAPI = api;
 };
 
-const onMove = (moveEvent) => {
-  // A move was made on the board, we could trigger the AI automatically if needed
-  console.log('Move made:', moveEvent);
+const onMove = async (moveEvent) => {
+  if (isEngineMove) return;
+  if (!boardAPI) return;
+
+  const fen = boardAPI.getFen();
+  const result = await getBestMove(fen);
+  if (result && result.evaluation) {
+    evaluation.value = result.evaluation.display;
+  }
 };
 
 const makeMove = async () => {
@@ -58,7 +65,9 @@ const makeMove = async () => {
         moveData.promotion = promotion;
       }
       
+      isEngineMove = true;
       boardAPI.move(moveData);
+      isEngineMove = false;
     } catch (error) {
       console.error('Invalid move:', error);
     }

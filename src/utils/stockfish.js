@@ -2,6 +2,7 @@ let engine = null;
 let engineReady = false;
 let bestMoveResolver = null;
 let lastEvaluation = null;
+let currentSideToMove = 'w'; // track whose turn it is for score normalization
 let skillLevel = 20; // 0-20, default 20 (strongest)
 let searchDepth = 15; // default search depth
 
@@ -37,7 +38,9 @@ export function initStockfish() {
           const scoreMatch = line.match(/score (\w+) (-?\d+)/);
           if (scoreMatch) {
             const scoreType = scoreMatch[1]; // 'cp' for centipawns or 'mate'
-            const scoreValue = parseInt(scoreMatch[2], 10);
+            const rawValue = parseInt(scoreMatch[2], 10);
+            // Normalize to white's perspective: negate if black is to move
+            const scoreValue = currentSideToMove === 'b' ? -rawValue : rawValue;
             
             if (scoreType === 'cp') {
               lastEvaluation = {
@@ -82,6 +85,8 @@ export function getBestMove(fen, depth = null) {
 
     bestMoveResolver = resolve;
     const searchDepthValue = depth !== null ? depth : searchDepth;
+    // Extract side to move from FEN (second space-separated field)
+    currentSideToMove = fen.split(' ')[1] ?? 'w';
     
     engine.postMessage('position fen ' + fen);
     engine.postMessage('go depth ' + searchDepthValue);
