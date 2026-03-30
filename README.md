@@ -2,10 +2,6 @@
 
 A Vue 3 + Vite project that renders an interactive chessboard using `vue3-chessboard`.
 
-Current behavior:
-- Main page displays a centered chessboard with a `Chess Vibe` title.
-- Board is interactive and can receive moves in the browser.
-
 ## Project Setup
 
 ### Install Dependencies
@@ -26,6 +22,12 @@ http://localhost:5173/
 ```
 
 The application will automatically reload when you make changes to any Vue components.
+
+To expose the app for mobile testing on local network:
+```bash
+npm run dev -- --host
+```
+Check ip-address of the wifi adapter with ipconfig.
 
 ## Build
 
