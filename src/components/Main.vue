@@ -81,9 +81,16 @@ const flipBoard = () => {
   boardAPI.toggleOrientation();
 };
 
-const undoMove = () => {
+const undoMove = async () => {
   if (!boardAPI) return;
+  isEngineMove = true;
   boardAPI.undoLastMove();
+  isEngineMove = false;
+  const fen = boardAPI.getFen();
+  const result = await getBestMove(fen);
+  if (result && result.evaluation) {
+    evaluation.value = result.evaluation.display;
+  }
 };
 
 
