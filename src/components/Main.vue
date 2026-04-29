@@ -5,6 +5,7 @@ import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 import { initStockfish, makeEngineMove, getBestMove } from '../utils/stockfish'
 import EngineSettings from './EngineSettings.vue'
+import FenDialog from './FenDialog.vue'
 
 const boardConfig = {
   coordinates: true,
@@ -16,8 +17,8 @@ const isThinking = ref(false);
 const evaluation = ref(null);
 const showSettings = ref(false);
 const showFenDialog = ref(false);
-const fenInput = ref('');
-const fenError = ref('');
+const fenInitialFen = ref('');
+const fenDialogRef = ref(null);
 
 onMounted(async () => {
   await initStockfish();
@@ -80,24 +81,18 @@ const makeMove = async () => {
 };
 
 const openFenDialog = () => {
-  fenInput.value = boardAPI ? boardAPI.getFen() : '';
-  fenError.value = '';
+  fenInitialFen.value = boardAPI ? boardAPI.getFen() : '';
   showFenDialog.value = true;
 };
 
-const loadFen = () => {
+const onFenLoad = (fen) => {
   if (!boardAPI) return;
-  const fen = fenInput.value.trim();
-  if (!fen) {
-    fenError.value = 'Please enter a FEN string.';
-    return;
-  }
   try {
     boardAPI.setPosition(fen);
     evaluation.value = null;
     showFenDialog.value = false;
   } catch (e) {
-    fenError.value = 'Invalid FEN string. Please check and try again.';
+    fenDialogRef.value?.setError('Invalid FEN string. Please check and try again.');
   }
 };
 
@@ -159,24 +154,13 @@ const undoMove = async () => {
 
     <EngineSettings v-if="showSettings" @close="showSettings = false" />
 
-    <div v-if="showFenDialog" class="dialog-overlay" @click.self="showFenDialog = false">
-      <div class="dialog">
-        <h2>Import FEN</h2>
-        <p class="dialog-desc">Paste a FEN string to load a position onto the board.</p>
-        <textarea
-          v-model="fenInput"
-          class="fen-input"
-          rows="3"
-          placeholder="e.g. rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-          @keydown.enter.prevent="loadFen"
-        ></textarea>
-        <p v-if="fenError" class="fen-error">{{ fenError }}</p>
-        <div class="dialog-actions">
-          <button class="btn" @click="loadFen"><i class="fas fa-check"></i><span class="btn-text">Load</span></button>
-          <button class="btn" @click="showFenDialog = false"><i class="fas fa-times"></i><span class="btn-text">Cancel</span></button>
-        </div>
-      </div>
-    </div>
+    <FenDialog
+      v-if="showFenDialog"
+      ref="fenDialogRef"
+      :initial-fen="fenInitialFen"
+      @load="onFenLoad"
+      @close="showFenDialog = false"
+    />
   </div>
 </template>
 
@@ -358,79 +342,6 @@ h1 {
   cursor: not-allowed;
 }
 
-.dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.dialog {
-  background: #fff;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  width: 100%;
-  max-width: 480px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.dialog h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #333;
-}
-
-.dialog-desc {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.fen-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.85rem;
-  font-family: monospace;
-  border: 1.5px solid #ccc;
-  border-radius: 0.5rem;
-  resize: vertical;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.fen-input:focus {
-  border-color: #764ba2;
-}
-
-.fen-error {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #e53e3e;
-}
-
-.dialog-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.dialog-actions .btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: transparent;
-}
-
-.dialog-actions .btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5a6fd6 0%, #65408e 100%);
-  transform: translateY(-1px);
-}
 
 @media (max-width: 480px) {
   .controls {
