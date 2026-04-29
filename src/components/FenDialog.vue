@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { EXAMPLE_GAMES } from '../utils/examplegames'
 
 const props = defineProps({
   initialFen: {
@@ -12,6 +13,13 @@ const emit = defineEmits(['load', 'close'])
 
 const fenInput = ref(props.initialFen)
 const fenError = ref('')
+
+const onSelectExample = (e) => {
+  if (e.target.value) {
+    fenInput.value = e.target.value
+    fenError.value = ''
+  }
+}
 
 const loadFen = () => {
   const fen = fenInput.value.trim()
@@ -33,7 +41,13 @@ defineExpose({ setError })
   <div class="dialog-overlay" @click.self="emit('close')">
     <div class="dialog">
       <h2>Import FEN</h2>
-      <p class="dialog-desc">Paste a FEN string to load a position onto the board.</p>
+      <p class="dialog-desc">Paste a FEN string or pick an example position.</p>
+      <select class="fen-select" @change="onSelectExample">
+        <option value="">— Example positions —</option>
+        <option v-for="game in EXAMPLE_GAMES" :key="game.label" :value="game.fen">
+          {{ game.label }}
+        </option>
+      </select>
       <textarea
         v-model="fenInput"
         class="fen-input"
@@ -84,6 +98,23 @@ defineExpose({ setError })
   margin: 0;
   font-size: 0.9rem;
   color: #666;
+}
+
+.fen-select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  border: 1.5px solid #ccc;
+  border-radius: 0.5rem;
+  outline: none;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.fen-select:focus {
+  border-color: #764ba2;
 }
 
 .fen-input {
