@@ -6,6 +6,7 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import { initStockfish, makeEngineMove, getBestMove } from '../utils/stockfish'
 import EngineSettings from './EngineSettings.vue'
 import FenDialog from './FenDialog.vue'
+import { EXAMPLE_GAMES } from '../utils/examplegames'
 
 const boardConfig = {
   coordinates: true,
@@ -96,6 +97,17 @@ const onFenLoad = (fen) => {
   }
 };
 
+const loadRandomPosition = async () => {
+  if (!boardAPI) return;
+  const randomGame = EXAMPLE_GAMES[Math.floor(Math.random() * EXAMPLE_GAMES.length)];
+  boardAPI.setPosition(randomGame.fen);
+  evaluation.value = null;
+  const result = await getBestMove(randomGame.fen);
+  if (result && result.evaluation) {
+    evaluation.value = result.evaluation.display;
+  }
+};
+
 const flipBoard = () => {
   if (!boardAPI) return;
   boardAPI.toggleOrientation();
@@ -124,7 +136,7 @@ const undoMove = async () => {
         Evaluation: {{ evaluation }}
       </div>
       <div class="header-buttons">
-        <button class="settings-btn" aria-label="Next random position">
+        <button class="settings-btn" @click="loadRandomPosition" aria-label="Next random position">
           <i class="fas fa-shuffle"></i>
         </button>
         <button class="settings-btn" @click="openFenDialog" aria-label="Import FEN">
