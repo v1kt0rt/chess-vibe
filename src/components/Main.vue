@@ -124,6 +124,9 @@ const undoMove = async () => {
         Evaluation: {{ evaluation }}
       </div>
       <div class="header-buttons">
+        <button class="settings-btn" aria-label="Next random position">
+          <i class="fas fa-shuffle"></i>
+        </button>
         <button class="settings-btn" @click="openFenDialog" aria-label="Import FEN">
           <i class="fas fa-file-import"></i>
         </button>
