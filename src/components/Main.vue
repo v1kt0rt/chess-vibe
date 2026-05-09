@@ -14,6 +14,7 @@ const boardConfig = {
 
 let boardAPI = null;
 let isEngineMove = false;
+let orientation = 'white';
 const isThinking = ref(false);
 const evaluation = ref(null);
 const showSettings = ref(false);
@@ -102,6 +103,11 @@ const loadRandomPosition = async () => {
   const randomGame = EXAMPLE_GAMES[Math.floor(Math.random() * EXAMPLE_GAMES.length)];
   boardAPI.setPosition(randomGame.fen);
   evaluation.value = null;
+  const activeColor = randomGame.fen.split(' ')[1] === 'b' ? 'black' : 'white';
+  if (activeColor !== orientation) {
+    boardAPI.toggleOrientation();
+    orientation = activeColor;
+  }
   const result = await getBestMove(randomGame.fen);
   if (result && result.evaluation) {
     evaluation.value = result.evaluation.display;
@@ -111,6 +117,7 @@ const loadRandomPosition = async () => {
 const flipBoard = () => {
   if (!boardAPI) return;
   boardAPI.toggleOrientation();
+  orientation = orientation === 'white' ? 'black' : 'white';
 };
 
 const undoMove = async () => {
