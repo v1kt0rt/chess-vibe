@@ -24,6 +24,7 @@ const fenDialogRef = ref(null);
 
 onMounted(async () => {
   await initStockfish();
+  await exampleGames.init();
 });
 
 const onBoardCreated = (api) => {
