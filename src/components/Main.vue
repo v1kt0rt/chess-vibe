@@ -88,10 +88,19 @@ const openFenDialog = () => {
   showFenDialog.value = true;
 };
 
+const flipToActiveColor = (fen) => {
+  const activeColor = fen.split(' ')[1] === 'b' ? 'black' : 'white';
+  if (activeColor !== orientation) {
+    boardAPI.toggleOrientation();
+    orientation = activeColor;
+  }
+};
+
 const onFenLoad = (fen) => {
   if (!boardAPI) return;
   try {
     boardAPI.setPosition(fen);
+    flipToActiveColor(fen);
     evaluation.value = null;
     showFenDialog.value = false;
   } catch (e) {
@@ -103,12 +112,8 @@ const loadRandomPosition = async () => {
   if (!boardAPI) return;
   const randomGame = exampleGames.games[Math.floor(Math.random() * exampleGames.games.length)];
   boardAPI.setPosition(randomGame.fen);
+  flipToActiveColor(randomGame.fen);
   evaluation.value = null;
-  const activeColor = randomGame.fen.split(' ')[1] === 'b' ? 'black' : 'white';
-  if (activeColor !== orientation) {
-    boardAPI.toggleOrientation();
-    orientation = activeColor;
-  }
   const result = await getBestMove(randomGame.fen);
   if (result && result.evaluation) {
     evaluation.value = result.evaluation.display;
