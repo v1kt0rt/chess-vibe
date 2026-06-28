@@ -6,7 +6,7 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import { initStockfish, makeEngineMove, getBestMove } from '../utils/stockfish'
 import EngineSettings from './EngineSettings.vue'
 import FenDialog from './FenDialog.vue'
-import { EXAMPLE_GAMES } from '../utils/examplegames'
+import { exampleGames } from '../utils/examplegames'
 
 const boardConfig = {
   coordinates: true,
@@ -100,7 +100,7 @@ const onFenLoad = (fen) => {
 
 const loadRandomPosition = async () => {
   if (!boardAPI) return;
-  const randomGame = EXAMPLE_GAMES[Math.floor(Math.random() * EXAMPLE_GAMES.length)];
+  const randomGame = exampleGames.games[Math.floor(Math.random() * exampleGames.games.length)];
   boardAPI.setPosition(randomGame.fen);
   evaluation.value = null;
   const activeColor = randomGame.fen.split(' ')[1] === 'b' ? 'black' : 'white';

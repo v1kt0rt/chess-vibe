@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { EXAMPLE_GAMES } from '../utils/examplegames'
+import { exampleGames } from '../utils/examplegames'
 
 const props = defineProps({
   initialFen: {
@@ -44,7 +44,7 @@ defineExpose({ setError })
       <p class="dialog-desc">Paste a FEN string or pick an example position.</p>
       <select class="fen-select" @change="onSelectExample">
         <option value="">— Example positions —</option>
-        <option v-for="game in EXAMPLE_GAMES" :key="game.label" :value="game.fen">
+        <option v-for="game in exampleGames.games" :key="game.label" :value="game.fen">
           {{ game.label }}
         </option>
       </select>
