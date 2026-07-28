@@ -24,6 +24,7 @@ const fenInitialFen = ref('');
 const fenDialogRef = ref(null);
 const skillLevel = ref(getSkillLevel());
 const searchDepth = ref(getSearchDepth());
+const gameLabel = ref('');
 
 onMounted(async () => {
   await initStockfish();
@@ -119,6 +120,7 @@ const onFenLoad = (fen) => {
     boardAPI.setPosition(fen);
     flipToActiveColor(fen);
     evaluation.value = null;
+    gameLabel.value = '';
     showFenDialog.value = false;
   } catch (e) {
     fenDialogRef.value?.setError('Invalid FEN string. Please check and try again.');
@@ -131,6 +133,7 @@ const loadRandomPosition = async () => {
   boardAPI.setPosition(randomGame.fen);
   flipToActiveColor(randomGame.fen);
   evaluation.value = null;
+  gameLabel.value = randomGame.label;
   const result = await getBestMove(randomGame.fen);
   if (result && result.evaluation) {
     evaluation.value = result.evaluation.display;
@@ -161,6 +164,9 @@ const undoMove = async () => {
 <template>
   <div class="chessboard-container">
     <h1>Chess Vibe</h1>
+    <div v-if="gameLabel" class="game-label">
+      {{ gameLabel }}
+    </div>
     <div class="board-header">
       <div class="info-group">
         <div class="engine-strength">
@@ -283,6 +289,16 @@ h1 {
   font-size: 1rem;
   font-weight: 600;
   padding: 0.25rem 0;
+}
+
+.game-label {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.25rem 0;
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
 }
 
 /* Fix horizontal coordinates offset */
