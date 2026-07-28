@@ -17,6 +17,7 @@ let isEngineMove = false;
 let orientation = 'white';
 const isThinking = ref(false);
 const evaluation = ref(null);
+const autoPlay = ref(false);
 const showSettings = ref(false);
 const showFenDialog = ref(false);
 const fenInitialFen = ref('');
@@ -48,6 +49,14 @@ const onMove = async (moveEvent) => {
   if (result && result.evaluation) {
     evaluation.value = result.evaluation.display;
   }
+
+  if (autoPlay.value) {
+    await makeMove();
+  }
+};
+
+const toggleAutoPlay = () => {
+  autoPlay.value = !autoPlay.value;
 };
 
 const makeMove = async () => {
@@ -179,10 +188,21 @@ const undoMove = async () => {
       @move="onMove"
     />
     <div class="controls">
-      <button class="btn" @click="makeMove" :disabled="isThinking">
-        <i class="fas fa-robot"></i>
-        <span class="btn-text">Bot Move</span>
-      </button>
+      <div class="btn btn-split">
+        <button class="btn-segment" @click="makeMove" :disabled="isThinking">
+          <i class="fas fa-robot"></i>
+          <span class="btn-text">Bot Move</span>
+        </button>
+        <button
+          class="btn-segment btn-segment-auto"
+          :class="{ active: autoPlay }"
+          @click="toggleAutoPlay"
+          aria-label="Toggle automatic mode"
+          :aria-pressed="autoPlay"
+        >
+          <i class="fas fa-bolt"></i>
+        </button>
+      </div>
       <button class="btn" @click="undoMove" aria-label="Undo last move">
         <i class="fas fa-undo"></i>
         <span class="btn-text">Undo</span>
@@ -394,6 +414,55 @@ h1 {
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn-split {
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+.btn-split:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-segment {
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.btn-segment:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-segment:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-segment:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-segment-auto {
+  padding: 0.375rem 0.5rem;
+}
+
+.btn-segment-auto.active {
+  background: rgba(255, 255, 255, 0.35);
+  color: #ffd700;
 }
 
 
