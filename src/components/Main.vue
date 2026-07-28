@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { TheChessboard } from 'vue3-chessboard'
 import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
-import { initStockfish, makeEngineMove, getBestMove } from '../utils/stockfish'
+import { initStockfish, makeEngineMove, getBestMove, getSkillLevel, getSearchDepth } from '../utils/stockfish'
 import EngineSettings from './EngineSettings.vue'
 import FenDialog from './FenDialog.vue'
 import { exampleGames } from '../utils/examplegames'
@@ -21,11 +21,19 @@ const showSettings = ref(false);
 const showFenDialog = ref(false);
 const fenInitialFen = ref('');
 const fenDialogRef = ref(null);
+const skillLevel = ref(getSkillLevel());
+const searchDepth = ref(getSearchDepth());
 
 onMounted(async () => {
   await initStockfish();
   await exampleGames.init();
 });
+
+const closeSettings = () => {
+  showSettings.value = false;
+  skillLevel.value = getSkillLevel();
+  searchDepth.value = getSearchDepth();
+};
 
 const onBoardCreated = (api) => {
   boardAPI = api;
@@ -145,8 +153,13 @@ const undoMove = async () => {
   <div class="chessboard-container">
     <h1>Chess Vibe</h1>
     <div class="board-header">
-      <div class="evaluation">
-        Evaluation: {{ evaluation }}
+      <div class="info-group">
+        <div class="engine-strength">
+          Strength: {{ skillLevel }}/{{ searchDepth }}
+        </div>
+        <div class="evaluation">
+          Evaluation: {{ evaluation }}
+        </div>
       </div>
       <div class="header-buttons">
         <button class="settings-btn" @click="loadRandomPosition" aria-label="Next random position">
@@ -180,7 +193,7 @@ const undoMove = async () => {
       </button>
     </div>
 
-    <EngineSettings v-if="showSettings" @close="showSettings = false" />
+    <EngineSettings v-if="showSettings" @close="closeSettings" />
 
     <FenDialog
       v-if="showFenDialog"
@@ -231,12 +244,25 @@ h1 {
   }
 }
 
+.info-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .evaluation {
   color: white;
   font-size: 1rem;
   font-weight: 600;
   padding: 0.25rem 0;
   min-height: 1.5rem;
+}
+
+.engine-strength {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.25rem 0;
 }
 
 /* Fix horizontal coordinates offset */
