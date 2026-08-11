@@ -173,7 +173,7 @@ const undoMove = async () => {
           Strength:<br />{{ skillLevel }}/{{ searchDepth }}
         </div>
         <div class="evaluation">
-          Eval:<br />{{ evaluation }}
+          Eval:<br />{{ evaluation || '-' }}
         </div>
       </div>
       <div class="header-buttons">
