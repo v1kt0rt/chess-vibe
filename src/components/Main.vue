@@ -489,7 +489,7 @@ h1 {
   }
 
   .btn {
-    padding: 0.625rem 1.25rem;
+    padding: 0.25rem 0.5rem;
     font-size: 0.9rem;
   }
 }
