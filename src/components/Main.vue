@@ -379,11 +379,9 @@ h1 {
 .settings-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.6);
-  transform: translateY(-2px);
 }
 
 .settings-btn:active {
-  transform: translateY(0);
   background: rgba(255, 255, 255, 0.25);
 }
 
@@ -419,11 +417,9 @@ h1 {
 .btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.6);
-  transform: translateY(-2px);
 }
 
 .btn:active:not(:disabled) {
-  transform: translateY(0);
   background: rgba(255, 255, 255, 0.25);
 }
 
