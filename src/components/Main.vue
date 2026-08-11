@@ -321,6 +321,11 @@ h1 {
     font-size: 2rem;
     margin-bottom: 1rem;
   }
+
+  .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 480px) {
