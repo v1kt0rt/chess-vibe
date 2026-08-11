@@ -170,10 +170,10 @@ const undoMove = async () => {
     <div class="board-header">
       <div class="info-group">
         <div class="engine-strength">
-          Strength: {{ skillLevel }}/{{ searchDepth }}
+          Strength:<br />{{ skillLevel }}/{{ searchDepth }}
         </div>
         <div class="evaluation">
-          Evaluation: {{ evaluation }}
+          Eval:<br />{{ evaluation }}
         </div>
       </div>
       <div class="header-buttons">
@@ -396,7 +396,7 @@ h1 {
 }
 
 .btn {
-  padding: 0.75rem 1.5rem;
+  padding: 0.25rem 0.5rem;
   font-size: 1rem;
   font-weight: 600;
   border: none;
