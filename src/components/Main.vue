@@ -238,6 +238,7 @@ const undoMove = async () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   padding: 2rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -314,12 +315,13 @@ h1 {
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .chessboard-container {
-    padding: 1rem;
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
   }
 
   h1 {
     font-size: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   .btn {
@@ -335,7 +337,7 @@ h1 {
 
   h1 {
     font-size: 1.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
   }
 }
 
@@ -483,9 +485,15 @@ h1 {
 }
 
 
+@media (max-width: 768px) {
+  .controls {
+    margin-top: 1rem;
+  }
+}
+
 @media (max-width: 480px) {
   .controls {
-    margin-top: 1.5rem;
+    margin-top: 0.75rem;
   }
 
   .btn {
