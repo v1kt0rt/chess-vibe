@@ -1,10 +1,33 @@
 let engine = null;
 let engineReady = false;
 let bestMoveResolver = null;
+let staleBestMoves = 0; // bestmove replies still expected from stopped searches
 let lastEvaluation = null;
 let currentSideToMove = 'w'; // track whose turn it is for score normalization
 let skillLevel = 20; // 0-20, default 20 (strongest)
 let searchDepth = 15; // default search depth
+
+// Extract side to move ('w' or 'b') from a FEN string (second field)
+export function sideToMove(fen) {
+  return fen.split(' ')[1] === 'b' ? 'b' : 'w';
+}
+
+// Parse the score from a UCI info line, normalized to white's perspective.
+// Returns null if the line has no score.
+export function parseScore(line, sideToMoveColor) {
+  const scoreMatch = line.match(/score (cp|mate) (-?\d+)/);
+  if (!scoreMatch) return null;
+
+  const scoreType = scoreMatch[1];
+  const rawValue = parseInt(scoreMatch[2], 10);
+  // Engine scores are from the side to move; negate if black is to move
+  const value = sideToMoveColor === 'b' ? -rawValue : rawValue;
+
+  if (scoreType === 'cp') {
+    return { type: 'cp', value, display: (value / 100).toFixed(2) };
+  }
+  return { type: 'mate', value, display: `M${value}` };
+}
 
 function detectWasm() {
   try {
@@ -35,35 +58,24 @@ export function initStockfish() {
         
         // Parse evaluation from info lines
         if (line.includes && line.includes('info') && line.includes('score')) {
-          const scoreMatch = line.match(/score (\w+) (-?\d+)/);
-          if (scoreMatch) {
-            const scoreType = scoreMatch[1]; // 'cp' for centipawns or 'mate'
-            const rawValue = parseInt(scoreMatch[2], 10);
-            // Normalize to white's perspective: negate if black is to move
-            const scoreValue = currentSideToMove === 'b' ? -rawValue : rawValue;
-            
-            if (scoreType === 'cp') {
-              lastEvaluation = {
-                type: 'cp',
-                value: scoreValue,
-                display: (scoreValue / 100).toFixed(2)
-              };
-            } else if (scoreType === 'mate') {
-              lastEvaluation = {
-                type: 'mate',
-                value: scoreValue,
-                display: `M${scoreValue}`
-              };
-            }
-          }
+          const evaluation = parseScore(line, currentSideToMove);
+          if (evaluation) lastEvaluation = evaluation;
         }
         
-        if (line.includes && line.includes('bestmove') && bestMoveResolver) {
-          const parts = line.split(' ');
-          const move = parts[1];
-          bestMoveResolver({ move, evaluation: lastEvaluation });
-          lastEvaluation = null;
-          bestMoveResolver = null;
+        if (line.includes && line.includes('bestmove')) {
+          // A stopped (superseded) search still reports a bestmove; discard it
+          if (staleBestMoves > 0) {
+            staleBestMoves--;
+            lastEvaluation = null;
+            return;
+          }
+          if (bestMoveResolver) {
+            const move = line.split(' ')[1];
+            const resolve = bestMoveResolver;
+            bestMoveResolver = null;
+            resolve({ move, evaluation: lastEvaluation });
+            lastEvaluation = null;
+          }
         }
       });
       
@@ -83,10 +95,17 @@ export function getBestMove(fen, depth = null) {
       return;
     }
 
+    // A search is already running: abandon it so its result can't reach this caller
+    if (bestMoveResolver) {
+      bestMoveResolver(null);
+      staleBestMoves++;
+      engine.postMessage('stop');
+    }
+
     bestMoveResolver = resolve;
+    lastEvaluation = null;
     const searchDepthValue = depth !== null ? depth : searchDepth;
-    // Extract side to move from FEN (second space-separated field)
-    currentSideToMove = fen.split(' ')[1] ?? 'w';
+    currentSideToMove = sideToMove(fen);
     
     engine.postMessage('position fen ' + fen);
     engine.postMessage('go depth ' + searchDepthValue);

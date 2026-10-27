@@ -29,6 +29,14 @@ npm run dev -- --host
 ```
 Check ip-address of the wifi adapter with ipconfig.
 
+## Testing
+
+Unit tests use [Vitest](https://vitest.dev/) and live next to the code (`*.test.js`).
+```bash
+npm test            # run once
+npm run test:watch  # re-run on file changes
+```
+
 ## Build
 
 ### Build for Production

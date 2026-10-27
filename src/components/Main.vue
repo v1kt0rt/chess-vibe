@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { TheChessboard } from 'vue3-chessboard'
 import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
-import { initStockfish, makeEngineMove, getBestMove, getSkillLevel, getSearchDepth } from '../utils/stockfish'
+import { initStockfish, makeEngineMove, getBestMove, getSkillLevel, getSearchDepth, sideToMove } from '../utils/stockfish'
 import EngineSettings from './EngineSettings.vue'
 import FenDialog from './FenDialog.vue'
 import { exampleGames } from '../utils/examplegames'
@@ -107,7 +107,7 @@ const openFenDialog = () => {
 };
 
 const flipToActiveColor = (fen) => {
-  const activeColor = fen.split(' ')[1] === 'b' ? 'black' : 'white';
+  const activeColor = sideToMove(fen) === 'b' ? 'black' : 'white';
   if (activeColor !== orientation) {
     boardAPI.toggleOrientation();
     orientation = activeColor;

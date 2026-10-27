@@ -8,8 +8,11 @@ export async function fetchSheet(gid = 0) {
   const response = await fetch(url)
   if (!response.ok) throw new Error(`Failed to fetch sheet: ${response.status}`)
 
-  const text = await response.text()
+  return parseSheetResponse(await response.text())
+}
 
+// Parses the gviz response text into an array of row objects keyed by header names.
+export function parseSheetResponse(text) {
   // Strip the JS wrapper Google wraps around the JSON response
   const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1))
 
