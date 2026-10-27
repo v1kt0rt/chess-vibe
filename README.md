@@ -29,6 +29,10 @@ npm run dev -- --host
 ```
 Check ip-address of the wifi adapter with ipconfig.
 
+## Build Timestamp
+
+The page footer shows when the app was built (UTC, e.g. `Build: 2026-10-27 21:30 UTC`). The timestamp is injected by Vite at build time via `define` in `vite.config.js`; in dev mode it shows when the dev server was started.
+
 ## Testing
 
 Unit tests use [Vitest](https://vitest.dev/) and live next to the code (`*.test.js`).

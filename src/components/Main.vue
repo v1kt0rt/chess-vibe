@@ -25,6 +25,7 @@ const fenDialogRef = ref(null);
 const skillLevel = ref(getSkillLevel());
 const searchDepth = ref(getSearchDepth());
 const gameLabel = ref('');
+const buildTime = __BUILD_TIME__;
 
 onMounted(async () => {
   await initStockfish();
@@ -218,6 +219,8 @@ const undoMove = async () => {
         <span class="btn-text">Flip</span>
       </button>
     </div>
+
+    <div class="build-label">Build: {{ buildTime }}</div>
 
     <EngineSettings v-if="showSettings" @close="closeSettings" />
 
@@ -484,6 +487,11 @@ h1 {
   color: #ffd700;
 }
 
+.build-label {
+  margin-top: 1.5rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
 
 @media (max-width: 768px) {
   .controls {
