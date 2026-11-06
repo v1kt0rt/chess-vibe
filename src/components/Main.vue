@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { TheChessboard } from 'vue3-chessboard'
 import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
@@ -17,6 +17,22 @@ let isEngineMove = false;
 let orientation = 'white';
 const isThinking = ref(false);
 const evaluation = ref(null);
+const EVAL_HIDDEN_KEY = 'chess-vibe:evalHidden';
+const readEvalHidden = () => {
+  try {
+    return localStorage.getItem(EVAL_HIDDEN_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+const evalHidden = ref(readEvalHidden());
+watch(evalHidden, (hidden) => {
+  try {
+    localStorage.setItem(EVAL_HIDDEN_KEY, String(hidden));
+  } catch {
+    // storage unavailable (e.g. private mode); keep in-memory state only
+  }
+});
 const autoPlay = ref(false);
 const showSettings = ref(false);
 const showFenDialog = ref(false);
@@ -173,9 +189,18 @@ const undoMove = async () => {
         <div class="engine-strength">
           Strength:<br />{{ skillLevel }}/{{ searchDepth }}
         </div>
-        <div class="evaluation">
-          Eval:<br />{{ evaluation || '-' }}
-        </div>
+        <button
+          type="button"
+          class="evaluation"
+          @click="evalHidden = !evalHidden"
+          :aria-pressed="evalHidden"
+          :aria-label="evalHidden ? 'Show evaluation' : 'Hide evaluation'"
+          :title="evalHidden ? 'Show evaluation' : 'Hide evaluation'"
+        >
+          Eval:<br />
+          <i v-if="evalHidden" class="fas fa-eye-slash eval-mask"></i>
+          <template v-else>{{ evaluation || '-' }}</template>
+        </button>
       </div>
       <div class="header-buttons">
         <button class="settings-btn" @click="loadRandomPosition" aria-label="Next random position">
@@ -286,6 +311,25 @@ h1 {
   font-weight: 600;
   padding: 0.25rem 0;
   min-height: 1.5rem;
+  min-width: 3.5rem;
+  background: none;
+  border: none;
+  font-family: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.evaluation:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.eval-mask {
+  opacity: 0.85;
 }
 
 .engine-strength {
