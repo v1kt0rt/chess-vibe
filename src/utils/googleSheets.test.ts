@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { parseSheetResponse } from './googleSheets'
 
 // Shape of a real gviz response: JSON wrapped in a JS callback
-const wrap = (obj) => `/*O_o*/\ngoogle.visualization.Query.setResponse(${JSON.stringify(obj)});`
+const wrap = (obj: unknown) => `/*O_o*/\ngoogle.visualization.Query.setResponse(${JSON.stringify(obj)});`
 
 describe('parseSheetResponse', () => {
   it('maps rows to objects keyed by column labels', () => {

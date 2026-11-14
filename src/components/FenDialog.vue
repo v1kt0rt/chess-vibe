@@ -1,22 +1,25 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { exampleGames } from '../utils/examplegames'
 
-const props = defineProps({
-  initialFen: {
-    type: String,
-    default: '',
-  },
+// Type-based props; withDefaults supplies values for optional (`?`) props
+const props = withDefaults(defineProps<{ initialFen?: string }>(), {
+  initialFen: '',
 })
 
-const emit = defineEmits(['load', 'close'])
+const emit = defineEmits<{
+  load: [fen: string]
+  close: []
+}>()
 
 const fenInput = ref(props.initialFen)
 const fenError = ref('')
 
-const onSelectExample = (e) => {
-  if (e.target.value) {
-    fenInput.value = e.target.value
+const onSelectExample = (e: Event) => {
+  // e.target is a generic EventTarget; we know it's the <select> element
+  const value = (e.target as HTMLSelectElement).value
+  if (value) {
+    fenInput.value = value
     fenError.value = ''
   }
 }
@@ -30,7 +33,7 @@ const loadFen = () => {
   emit('load', fen)
 }
 
-const setError = (msg) => {
+const setError = (msg: string) => {
   fenError.value = msg
 }
 

@@ -1,0 +1,9 @@
+{
+  // Root config: just points at the two sub-projects below.
+  // The app code runs in the browser; vite.config.ts and scripts run in Node.
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}

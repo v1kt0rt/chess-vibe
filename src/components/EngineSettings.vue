@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import '@fortawesome/fontawesome-free/css/all.css'
 import { setSkillLevel, setSearchDepth, getSkillLevel, getSearchDepth } from '../utils/stockfish'
 
-const emit = defineEmits(['close'])
+// Type-based emits: each key is an event name, the tuple lists its arguments
+const emit = defineEmits<{ close: [] }>()
 
 const skillLevelInput = ref(getSkillLevel())
 const searchDepthInput = ref(getSearchDepth())

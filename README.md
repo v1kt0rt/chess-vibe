@@ -31,15 +31,23 @@ Check ip-address of the wifi adapter with ipconfig.
 
 ## Build Timestamp
 
-The page footer shows when the app was built (UTC, e.g. `Build: 2026-10-27 21:30 UTC`). The timestamp is injected by Vite at build time via `define` in `vite.config.js`; in dev mode it shows when the dev server was started.
+The page footer shows when the app was built (UTC, e.g. `Build: 2026-10-27 21:30 UTC`). The timestamp is injected by Vite at build time via `define` in `vite.config.ts`; in dev mode it shows when the dev server was started.
 
 ## Testing
 
-Unit tests use [Vitest](https://vitest.dev/) and live next to the code (`*.test.js`).
+Unit tests use [Vitest](https://vitest.dev/) and live next to the code (`*.test.ts`).
 ```bash
 npm test            # run once
 npm run test:watch  # re-run on file changes
 ```
+
+## Type Checking
+
+The project is written in TypeScript (`<script setup lang="ts">` in Vue components). Vite only strips types, so type errors are caught by `vue-tsc`:
+```bash
+npm run typecheck
+```
+`npm run build` runs the type check first and fails on type errors.
 
 ## Build
 
@@ -61,13 +69,18 @@ This allows you to preview the production build locally before deployment.
 
 ```
 src/
-├── main.js           # App entry point
+├── main.ts           # App entry point
+├── env.d.ts          # Global type declarations (Vite, __BUILD_TIME__)
 ├── App.vue           # Root Vue component
-└── components/
-    └── Main.vue      # Chessboard component
+├── components/
+│   ├── Main.vue            # Chessboard component
+│   ├── EngineSettings.vue  # Engine settings dialog
+│   └── FenDialog.vue       # Load position from FEN
+└── utils/            # Stockfish wrapper, Google Sheets loader, example games
 
 index.html           # HTML template
-vite.config.js       # Vite configuration
+vite.config.ts       # Vite configuration
+tsconfig*.json       # TypeScript configuration (app + Node tooling)
 package.json         # Dependencies and scripts
 ```
 

@@ -16,8 +16,8 @@ describe('sideToMove', () => {
 })
 
 describe('parseScore', () => {
-  const cpLine = (cp) => `info depth 15 seldepth 20 multipv 1 score cp ${cp} nodes 12345 pv e2e4 e7e5`
-  const mateLine = (n) => `info depth 15 score mate ${n} nodes 999 pv d1h5`
+  const cpLine = (cp: number) => `info depth 15 seldepth 20 multipv 1 score cp ${cp} nodes 12345 pv e2e4 e7e5`
+  const mateLine = (n: number) => `info depth 15 score mate ${n} nodes 999 pv d1h5`
 
   it('returns null for lines without a score', () => {
     expect(parseScore('info depth 1 currmove e2e4 currmovenumber 1', 'w')).toBeNull()
@@ -32,11 +32,11 @@ describe('parseScore', () => {
   })
 
   it('formats negative centipawns from white perspective', () => {
-    expect(parseScore(cpLine(-120), 'w').display).toBe('-1.20')
+    expect(parseScore(cpLine(-120), 'w')!.display).toBe('-1.20')
   })
 
   it('handles a zero score for black without producing -0.00', () => {
-    expect(parseScore(cpLine(0), 'b').display).toBe('0.00')
+    expect(parseScore(cpLine(0), 'b')!.display).toBe('0.00')
   })
 
   it('parses mate scores for white', () => {
@@ -48,33 +48,39 @@ describe('parseScore', () => {
   })
 
   it('ignores score bound qualifiers after the value', () => {
-    expect(parseScore('info depth 10 score cp 50 lowerbound nodes 1', 'w').value).toBe(50)
+    expect(parseScore('info depth 10 score cp 50 lowerbound nodes 1', 'w')!.value).toBe(50)
   })
 })
 
 // Minimal stand-in for the Stockfish web worker: records commands and lets
 // tests push engine output lines back to the listener.
+type Listener = (e: { data: string }) => void
+
 class FakeWorker {
+  // Class fields must be declared in TS (JS let you just assign them in the constructor)
+  static instance: FakeWorker
+  sent: string[] = []
+  listeners: Listener[] = []
+
   constructor() {
-    this.sent = []
-    this.listeners = []
     FakeWorker.instance = this
   }
-  addEventListener(_type, fn) {
+  addEventListener(_type: string, fn: Listener) {
     this.listeners.push(fn)
   }
-  postMessage(msg) {
+  postMessage(msg: string) {
     this.sent.push(msg)
     if (msg === 'uci') queueMicrotask(() => this.emit('uciok'))
   }
-  emit(line) {
+  emit(line: string) {
     this.listeners.forEach(fn => fn({ data: line }))
   }
 }
 
 describe('getBestMove', () => {
-  let engine
-  let stockfish
+  let engine: FakeWorker
+  // typeof import('...') = the type of the whole module's exports
+  let stockfish: typeof import('./stockfish')
 
   beforeEach(async () => {
     vi.resetModules()

@@ -20,7 +20,9 @@ filesToCopy.forEach(file => {
     fs.copyFileSync(src, dest);
     console.log(`✓ Copied ${file}`);
   } catch (error) {
-    console.error(`✗ Failed to copy ${file}:`, error.message);
+    // Caught errors are `unknown` in TS: anything can be thrown, so check first
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`✗ Failed to copy ${file}:`, message);
     process.exit(1);
   }
 });

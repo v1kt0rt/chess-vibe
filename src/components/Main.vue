@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import { TheChessboard } from 'vue3-chessboard'
+import { TheChessboard, type BoardApi, type BoardConfig, type Move, type Promotion } from 'vue3-chessboard'
 import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 import { initStockfish, makeEngineMove, getBestMove, getSkillLevel, getSearchDepth, sideToMove } from '../utils/stockfish'
@@ -8,15 +8,20 @@ import EngineSettings from './EngineSettings.vue'
 import FenDialog from './FenDialog.vue'
 import { exampleGames } from '../utils/examplegames'
 
-const boardConfig = {
+// The board's Move type is `string | {...}`; Exclude<> keeps just the object form
+type MoveObject = Exclude<Move, string>;
+// Indexed access: the type of the `from` property (a board square like 'e2')
+type Square = MoveObject['from'];
+
+const boardConfig: BoardConfig = {
   coordinates: true,
 };
 
-let boardAPI = null;
+let boardAPI: BoardApi | null = null;
 let isEngineMove = false;
-let orientation = 'white';
+let orientation: 'white' | 'black' = 'white';
 const isThinking = ref(false);
-const evaluation = ref(null);
+const evaluation = ref<string | null>(null);
 const EVAL_HIDDEN_KEY = 'chess-vibe:evalHidden';
 const readEvalHidden = () => {
   try {
@@ -37,7 +42,8 @@ const autoPlay = ref(false);
 const showSettings = ref(false);
 const showFenDialog = ref(false);
 const fenInitialFen = ref('');
-const fenDialogRef = ref(null);
+// InstanceType<typeof X> = the component instance type, including what it exposes
+const fenDialogRef = ref<InstanceType<typeof FenDialog> | null>(null);
 const skillLevel = ref(getSkillLevel());
 const searchDepth = ref(getSearchDepth());
 const gameLabel = ref('');
@@ -54,11 +60,11 @@ const closeSettings = () => {
   searchDepth.value = getSearchDepth();
 };
 
-const onBoardCreated = (api) => {
+const onBoardCreated = (api: BoardApi) => {
   boardAPI = api;
 };
 
-const onMove = async (moveEvent) => {
+const onMove = async () => {
   if (isEngineMove) return;
   if (!boardAPI) return;
 
@@ -92,21 +98,18 @@ const makeMove = async () => {
       evaluation.value = result.evaluation.display;
     }
     
-    // Convert move to object format (e.g., e2e4 -> {from: 'e2', to: 'e4'})
-    const from = result.move.substring(0, 2);
-    const to = result.move.substring(2, 4);
-    const promotion = result.move.length > 4 ? result.move[4] : undefined;
-    
+    // Convert move to object format (e.g., e2e4 -> {from: 'e2', to: 'e4'}).
+    // `as` narrows plain strings to the board's square/piece types; we trust
+    // Stockfish to send valid UCI, and an illegal move is caught below.
+    const moveData: MoveObject = {
+      from: result.move.substring(0, 2) as Square,
+      to: result.move.substring(2, 4) as Square,
+    };
+    if (result.move.length > 4) {
+      moveData.promotion = result.move[4] as Promotion;
+    }
+
     try {
-      const moveData = {
-        from,
-        to,
-      };
-      
-      if (promotion) {
-        moveData.promotion = promotion;
-      }
-      
       isEngineMove = true;
       boardAPI.move(moveData);
       isEngineMove = false;
@@ -123,7 +126,8 @@ const openFenDialog = () => {
   showFenDialog.value = true;
 };
 
-const flipToActiveColor = (fen) => {
+const flipToActiveColor = (fen: string) => {
+  if (!boardAPI) return;
   const activeColor = sideToMove(fen) === 'b' ? 'black' : 'white';
   if (activeColor !== orientation) {
     boardAPI.toggleOrientation();
@@ -131,7 +135,7 @@ const flipToActiveColor = (fen) => {
   }
 };
 
-const onFenLoad = (fen) => {
+const onFenLoad = (fen: string) => {
   if (!boardAPI) return;
   try {
     boardAPI.setPosition(fen);
@@ -139,7 +143,7 @@ const onFenLoad = (fen) => {
     evaluation.value = null;
     gameLabel.value = '';
     showFenDialog.value = false;
-  } catch (e) {
+  } catch {
     fenDialogRef.value?.setError('Invalid FEN string. Please check and try again.');
   }
 };
@@ -147,6 +151,7 @@ const onFenLoad = (fen) => {
 const loadRandomPosition = async () => {
   if (!boardAPI) return;
   const randomGame = exampleGames.games[Math.floor(Math.random() * exampleGames.games.length)];
+  if (!randomGame) return; // the list may still be loading (or empty)
   boardAPI.setPosition(randomGame.fen);
   flipToActiveColor(randomGame.fen);
   evaluation.value = null;
