@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { parseScore, sideToMove } from './stockfish'
+import { parseScore, sideToMove } from './logic'
 
 describe('sideToMove', () => {
   it('reads white to move', () => {
@@ -80,13 +80,13 @@ class FakeWorker {
 describe('getBestMove', () => {
   let engine: FakeWorker
   // typeof import('...') = the type of the whole module's exports
-  let stockfish: typeof import('./stockfish')
+  let logic: typeof import('./logic')
 
   beforeEach(async () => {
     vi.resetModules()
     vi.stubGlobal('Worker', FakeWorker)
-    stockfish = await import('./stockfish')
-    await stockfish.initStockfish()
+    logic = await import('./logic')
+    await logic.initStockfish()
     engine = FakeWorker.instance
   })
 
@@ -94,7 +94,7 @@ describe('getBestMove', () => {
   const BLACK_FEN = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
 
   it('resolves with the best move and white-perspective evaluation', async () => {
-    const pending = stockfish.getBestMove(BLACK_FEN)
+    const pending = logic.getBestMove(BLACK_FEN)
     engine.emit('info depth 15 score cp 40 pv e7e5')
     engine.emit('bestmove e7e5 ponder g1f3')
 
@@ -105,22 +105,22 @@ describe('getBestMove', () => {
   })
 
   it('sends position and depth to the engine', () => {
-    stockfish.getBestMove(WHITE_FEN, 8)
+    logic.getBestMove(WHITE_FEN, 8)
     expect(engine.sent).toContain(`position fen ${WHITE_FEN}`)
     expect(engine.sent).toContain('go depth 8')
   })
 
   it('resolves a superseded search with null and stops the engine', async () => {
-    const first = stockfish.getBestMove(WHITE_FEN)
-    stockfish.getBestMove(BLACK_FEN)
+    const first = logic.getBestMove(WHITE_FEN)
+    logic.getBestMove(BLACK_FEN)
 
     expect(await first).toBeNull()
     expect(engine.sent).toContain('stop')
   })
 
   it('does not hand the stopped search result to the new caller', async () => {
-    stockfish.getBestMove(WHITE_FEN)
-    const second = stockfish.getBestMove(BLACK_FEN)
+    logic.getBestMove(WHITE_FEN)
+    const second = logic.getBestMove(BLACK_FEN)
 
     // Engine finishes the stopped search first, then the new one
     engine.emit('info depth 5 score cp 900 pv e2e4')

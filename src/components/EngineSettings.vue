@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import '@fortawesome/fontawesome-free/css/all.css'
-import { setSkillLevel, setSearchDepth, getSkillLevel, getSearchDepth } from '../utils/stockfish'
+import { setSkillLevel, setSearchDepth, getSkillLevel, getSearchDepth } from '../utils/logic'
 
 // Type-based emits: each key is an event name, the tuple lists its arguments
 const emit = defineEmits<{ close: [] }>()
