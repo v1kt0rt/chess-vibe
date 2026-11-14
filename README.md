@@ -77,8 +77,7 @@ src/
 │   └── HomePage.vue        # Start page
 ├── components/
 │   ├── Main.vue            # Chessboard page
-│   ├── EngineSettings.vue  # Engine settings dialog
-│   └── FenDialog.vue       # Load position from FEN
+│   └── EngineSettings.vue  # Engine settings dialog
 └── utils/            # Stockfish wrapper, Google Sheets loader, example games
 
 index.html           # HTML template

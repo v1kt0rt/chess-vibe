@@ -5,8 +5,7 @@ import 'vue3-chessboard/style.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 import { initStockfish, makeEngineMove, getBestMove, getSkillLevel, getSearchDepth, sideToMove } from '../utils/logic'
 import EngineSettings from './EngineSettings.vue'
-import FenDialog from './FenDialog.vue'
-import { exampleGames } from '../utils/examplegames'
+import { takeSelectedGame, type ExampleGame } from '../utils/examplegames'
 
 // The board's Move type is `string | {...}`; Exclude<> keeps just the object form
 type MoveObject = Exclude<Move, string>;
@@ -40,17 +39,12 @@ watch(evalHidden, (hidden) => {
 });
 const autoPlay = ref(false);
 const showSettings = ref(false);
-const showFenDialog = ref(false);
-const fenInitialFen = ref('');
-// InstanceType<typeof X> = the component instance type, including what it exposes
-const fenDialogRef = ref<InstanceType<typeof FenDialog> | null>(null);
 const skillLevel = ref(getSkillLevel());
 const searchDepth = ref(getSearchDepth());
 const gameLabel = ref('');
 
 onMounted(async () => {
   await initStockfish();
-  await exampleGames.init();
 });
 
 const closeSettings = () => {
@@ -61,6 +55,9 @@ const closeSettings = () => {
 
 const onBoardCreated = (api: BoardApi) => {
   boardAPI = api;
+  // A game picked on the start page is loaded as soon as the board exists
+  const selected = takeSelectedGame();
+  if (selected) loadGame(selected);
 };
 
 const onMove = async () => {
@@ -120,11 +117,6 @@ const makeMove = async () => {
   isThinking.value = false;
 };
 
-const openFenDialog = () => {
-  fenInitialFen.value = boardAPI ? boardAPI.getFen() : '';
-  showFenDialog.value = true;
-};
-
 const flipToActiveColor = (fen: string) => {
   if (!boardAPI) return;
   const activeColor = sideToMove(fen) === 'b' ? 'black' : 'white';
@@ -134,28 +126,20 @@ const flipToActiveColor = (fen: string) => {
   }
 };
 
-const onFenLoad = (fen: string) => {
+const loadGame = async (game: ExampleGame) => {
   if (!boardAPI) return;
   try {
-    boardAPI.setPosition(fen);
-    flipToActiveColor(fen);
-    evaluation.value = null;
-    gameLabel.value = '';
-    showFenDialog.value = false;
-  } catch {
-    fenDialogRef.value?.setError('Invalid FEN string. Please check and try again.');
+    boardAPI.setPosition(game.fen);
+  } catch (error) {
+    console.error('Invalid FEN in example game:', game, error);
+    return;
   }
-};
-
-const loadRandomPosition = async () => {
-  if (!boardAPI) return;
-  const randomGame = exampleGames.games[Math.floor(Math.random() * exampleGames.games.length)];
-  if (!randomGame) return; // the list may still be loading (or empty)
-  boardAPI.setPosition(randomGame.fen);
-  flipToActiveColor(randomGame.fen);
+  flipToActiveColor(game.fen);
   evaluation.value = null;
-  gameLabel.value = randomGame.label;
-  const result = await getBestMove(randomGame.fen);
+  gameLabel.value = game.label;
+  // The board can be ready before the engine is; wait for it (it starts only once)
+  await initStockfish();
+  const result = await getBestMove(game.fen);
   if (result && result.evaluation) {
     evaluation.value = result.evaluation.display;
   }
@@ -207,12 +191,6 @@ const undoMove = async () => {
         </button>
       </div>
       <div class="header-buttons">
-        <button class="settings-btn" @click="loadRandomPosition" aria-label="Next random position">
-          <i class="fas fa-shuffle"></i>
-        </button>
-        <button class="settings-btn" @click="openFenDialog" aria-label="Import FEN">
-          <i class="fas fa-file-import"></i>
-        </button>
         <button class="settings-btn" @click="showSettings = true" aria-label="Engine settings">
           <i class="fas fa-cog"></i>
         </button>
@@ -251,14 +229,6 @@ const undoMove = async () => {
 
 
     <EngineSettings v-if="showSettings" @close="closeSettings" />
-
-    <FenDialog
-      v-if="showFenDialog"
-      ref="fenDialogRef"
-      :initial-fen="fenInitialFen"
-      @load="onFenLoad"
-      @close="showFenDialog = false"
-    />
   </div>
 </template>
 
