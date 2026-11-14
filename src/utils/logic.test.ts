@@ -104,6 +104,11 @@ describe('getBestMove', () => {
     })
   })
 
+  it('reuses the same engine when initialized again', async () => {
+    await logic.initStockfish()
+    expect(FakeWorker.instance).toBe(engine)
+  })
+
   it('sends position and depth to the engine', () => {
     logic.getBestMove(WHITE_FEN, 8)
     expect(engine.sent).toContain(`position fen ${WHITE_FEN}`)

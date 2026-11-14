@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Main from './components/Main.vue'
+// The router decides which page component is rendered in <RouterView />
 </script>
 
 <template>
-  <Main />
+  <RouterView />
 </template>

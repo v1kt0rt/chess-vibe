@@ -31,7 +31,7 @@ Check ip-address of the wifi adapter with ipconfig.
 
 ## Build Timestamp
 
-The page footer shows when the app was built (UTC, e.g. `Build: 2026-10-27 21:30 UTC`). The timestamp is injected by Vite at build time via `define` in `vite.config.ts`; in dev mode it shows when the dev server was started.
+The start page shows when the app was built (UTC, e.g. `Build: 2026-10-27 21:30 UTC`). The timestamp is injected by Vite at build time via `define` in `vite.config.ts`; in dev mode it shows when the dev server was started.
 
 ## Testing
 
@@ -71,9 +71,12 @@ This allows you to preview the production build locally before deployment.
 src/
 ├── main.ts           # App entry point
 ├── env.d.ts          # Global type declarations (Vite, __BUILD_TIME__)
-├── App.vue           # Root Vue component
+├── App.vue           # Root Vue component (renders the current route)
+├── router.ts         # Routes: / (start page), /play (chessboard)
+├── pages/
+│   └── HomePage.vue        # Start page
 ├── components/
-│   ├── Main.vue            # Chessboard component
+│   ├── Main.vue            # Chessboard page
 │   ├── EngineSettings.vue  # Engine settings dialog
 │   └── FenDialog.vue       # Load position from FEN
 └── utils/            # Stockfish wrapper, Google Sheets loader, example games

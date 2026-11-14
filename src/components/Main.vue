@@ -47,7 +47,6 @@ const fenDialogRef = ref<InstanceType<typeof FenDialog> | null>(null);
 const skillLevel = ref(getSkillLevel());
 const searchDepth = ref(getSearchDepth());
 const gameLabel = ref('');
-const buildTime = __BUILD_TIME__;
 
 onMounted(async () => {
   await initStockfish();
@@ -250,7 +249,6 @@ const undoMove = async () => {
       </button>
     </div>
 
-    <div class="build-label">Build: {{ buildTime }}</div>
 
     <EngineSettings v-if="showSettings" @close="closeSettings" />
 
@@ -534,12 +532,6 @@ h1 {
 .btn-segment-auto.active {
   background: rgba(255, 255, 255, 0.35);
   color: #ffd700;
-}
-
-.build-label {
-  margin-top: 1.5rem;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.75rem;
 }
 
 @media (max-width: 768px) {

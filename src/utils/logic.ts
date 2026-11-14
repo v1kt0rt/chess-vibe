@@ -57,7 +57,16 @@ function detectWasm(): boolean {
   return false
 }
 
+// Shared by every caller so the worker is only created once, even when the
+// chessboard page is opened again after navigating away
+let initPromise: Promise<void> | null = null
+
 export function initStockfish(): Promise<void> {
+  initPromise ??= startEngine()
+  return initPromise
+}
+
+function startEngine(): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
       const wasmSupported = detectWasm()
@@ -103,6 +112,7 @@ export function initStockfish(): Promise<void> {
       worker.postMessage('uci')
     } catch (error) {
       console.error('Failed to initialize Stockfish:', error)
+      initPromise = null // allow a retry on the next call
       reject(error)
     }
   })
