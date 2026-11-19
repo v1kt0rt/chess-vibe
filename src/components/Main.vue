@@ -105,12 +105,14 @@ const makeMove = async () => {
       moveData.promotion = result.move[4] as Promotion;
     }
 
+    isEngineMove = true;
     try {
-      isEngineMove = true;
       boardAPI.move(moveData);
-      isEngineMove = false;
     } catch (error) {
       console.error('Invalid move:', error);
+    } finally {
+      // Always reset, or every later user move would be ignored by onMove
+      isEngineMove = false;
     }
   }
   
@@ -154,8 +156,11 @@ const flipBoard = () => {
 const undoMove = async () => {
   if (!boardAPI) return;
   isEngineMove = true;
-  boardAPI.undoLastMove();
-  isEngineMove = false;
+  try {
+    boardAPI.undoLastMove();
+  } finally {
+    isEngineMove = false;
+  }
   const fen = boardAPI.getFen();
   const result = await getBestMove(fen);
   if (result && result.evaluation) {

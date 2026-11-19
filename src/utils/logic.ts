@@ -159,13 +159,18 @@ export function setSkillLevel(level: number): void {
   engine.postMessage(`setoption name Skill Level value ${validLevel}`)
 }
 
+export const MIN_SEARCH_DEPTH = 1
+export const MAX_SEARCH_DEPTH = 50
+
+// Set default search depth for future moves.
+// Non-numbers (e.g. NaN from an empty input) are ignored; other values are
+// rounded to a whole number and clamped to MIN_SEARCH_DEPTH..MAX_SEARCH_DEPTH.
 export function setSearchDepth(depth: number): void {
-  // Set default search depth for future moves
-  if (depth <= 0) {
-    console.error('Search depth must be greater than 0')
+  if (!Number.isFinite(depth)) {
+    console.error('Search depth must be a number')
     return
   }
-  searchDepth = depth
+  searchDepth = Math.max(MIN_SEARCH_DEPTH, Math.min(MAX_SEARCH_DEPTH, Math.round(depth)))
 }
 
 export function getSkillLevel(): number {
