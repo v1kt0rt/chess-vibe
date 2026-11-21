@@ -139,3 +139,40 @@ describe('getBestMove', () => {
     })
   })
 })
+
+describe('setSearchDepth', () => {
+  let logic: typeof import('./logic')
+
+  beforeEach(async () => {
+    vi.resetModules() // fresh module state (default depth) per test
+    logic = await import('./logic')
+  })
+
+  it('accepts a whole number in range', () => {
+    logic.setSearchDepth(20)
+    expect(logic.getSearchDepth()).toBe(20)
+  })
+
+  it('rounds fractional values', () => {
+    logic.setSearchDepth(7.6)
+    expect(logic.getSearchDepth()).toBe(8)
+  })
+
+  it('clamps values outside 1-50', () => {
+    logic.setSearchDepth(0)
+    expect(logic.getSearchDepth()).toBe(1)
+    logic.setSearchDepth(-5)
+    expect(logic.getSearchDepth()).toBe(1)
+    logic.setSearchDepth(999)
+    expect(logic.getSearchDepth()).toBe(50)
+  })
+
+  it('ignores NaN (e.g. an empty input) and keeps the previous depth', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    logic.setSearchDepth(12)
+    logic.setSearchDepth(NaN)
+    expect(logic.getSearchDepth()).toBe(12)
+    logic.setSearchDepth(Infinity)
+    expect(logic.getSearchDepth()).toBe(12)
+  })
+})
