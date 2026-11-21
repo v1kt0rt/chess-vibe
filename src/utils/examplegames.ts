@@ -4,6 +4,7 @@ import { fetchSheet } from './googleSheets'
 export interface ExampleGame {
   label: string
   fen: string
+  description: string // 1–2 sentences shown on the start page; empty if the sheet has none
 }
 
 let loadPromise: Promise<void> | null = null
@@ -29,7 +30,11 @@ export const exampleGames = reactive({
       const rows = await fetchSheet()
       // Sheet cells could be anything, so convert to strings and drop rows without a FEN
       this.games = rows
-        .map(({ label, fen }) => ({ label: String(label ?? ''), fen: String(fen ?? '') }))
+        .map(({ label, fen, description }) => ({
+          label: String(label ?? ''),
+          fen: String(fen ?? ''),
+          description: String(description ?? '').trim(),
+        }))
         .filter(game => game.fen !== '')
     } catch (e) {
       console.error('Failed to load example games:', e)

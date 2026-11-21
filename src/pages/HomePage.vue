@@ -29,7 +29,10 @@ onMounted(() => {
       <p v-else-if="exampleGames.games.length === 0" class="examples-status">No example games yet.</p>
       <ul v-else class="examples-list">
         <li v-for="game in exampleGames.games" :key="game.fen">
-          <span class="game-name">{{ game.label || 'Untitled' }}</span>
+          <div class="game-info">
+            <span class="game-name">{{ game.label || 'Untitled' }}</span>
+            <p v-if="game.description" class="game-description">{{ game.description }}</p>
+          </div>
           <button
             type="button"
             class="play-btn"
@@ -97,10 +100,17 @@ h1 {
   border-radius: 0.5rem;
 }
 
-.game-name {
+.game-info {
   flex: 1; /* takes the free space, pushing the button to the right */
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.game-description {
+  margin: 0.2rem 0 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  line-height: 1.35;
 }
 
 .play-btn {

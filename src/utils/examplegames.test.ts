@@ -16,15 +16,29 @@ describe('exampleGames', () => {
 
   it('loads games and drops rows without a FEN', async () => {
     fetchSheet.mockResolvedValue([
-      { label: 'Opera Game', fen: '8/8/8/8/8/8/8/8 w - - 0 1' },
-      { label: 'Empty', fen: null },
+      { label: 'Opera Game', fen: '8/8/8/8/8/8/8/8 w - - 0 1', description: 'Morphy wins in style.' },
+      { label: 'Empty', fen: null, description: 'No position here.' },
     ])
 
     await exampleGames.init()
 
-    expect(exampleGames.games).toEqual([{ label: 'Opera Game', fen: '8/8/8/8/8/8/8/8 w - - 0 1' }])
+    expect(exampleGames.games).toEqual([
+      { label: 'Opera Game', fen: '8/8/8/8/8/8/8/8 w - - 0 1', description: 'Morphy wins in style.' },
+    ])
     expect(exampleGames.loading).toBe(false)
     expect(exampleGames.error).toBeNull()
+  })
+
+  it('uses an empty description when the sheet has none', async () => {
+    fetchSheet.mockResolvedValue([
+      { label: 'No column', fen: '8/8/8/8/8/8/8/8 w - - 0 1' },
+      { label: 'Empty cell', fen: '8/8/8/8/8/8/8/8 b - - 0 1', description: null },
+      { label: 'Blank', fen: '8/8/8/8/8/8/8/8 w - - 0 2', description: '   ' },
+    ])
+
+    await exampleGames.init()
+
+    expect(exampleGames.games.map(game => game.description)).toEqual(['', '', ''])
   })
 
   it('fetches the sheet only once when initialized repeatedly', async () => {
@@ -53,7 +67,7 @@ describe('selected game', () => {
   it('hands the selected game over exactly once', async () => {
     vi.resetModules()
     const { selectGame, takeSelectedGame } = await import('./examplegames')
-    const game = { label: 'Opera Game', fen: '8/8/8/8/8/8/8/8 w - - 0 1' }
+    const game = { label: 'Opera Game', fen: '8/8/8/8/8/8/8/8 w - - 0 1', description: '' }
 
     expect(takeSelectedGame()).toBeNull()
     selectGame(game)
