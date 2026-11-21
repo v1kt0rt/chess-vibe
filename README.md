@@ -33,6 +33,16 @@ Check ip-address of the wifi adapter with ipconfig.
 
 The start page shows when the app was built (UTC, e.g. `Build: 2026-10-27 21:30 UTC`). The timestamp is injected by Vite at build time via `define` in `vite.config.ts`; in dev mode it shows when the dev server was started.
 
+## Example Games
+
+The start page lists example games loaded from a Google Sheet (`src/utils/googleSheets.ts`). Each row uses these columns:
+
+- `label`: the game's name
+- `fen`: the starting position (rows without a FEN are skipped)
+- `description`: an optional 1–2 sentence description, shown under the name on the start page only
+
+Pressing a game's play button opens it on the chessboard page.
+
 ## Testing
 
 Unit tests use [Vitest](https://vitest.dev/) and live next to the code (`*.test.ts`).
